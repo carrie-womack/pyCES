@@ -1,0 +1,24 @@
+--- # CES Configuration parameters
+spectrometer:
+  integration_time: 1000000
+  type: "QEPro"
+MFC:
+  port: "ttyS2"
+  baudRate: 38400
+  numMFCs: 1
+TEC:
+  port: "ttyS1"
+  baudRate: 57600
+valves:
+  numValves: 2
+analog:
+  numAnalog: 6
+UDP:
+  #IP: "192.168.7.2"
+  IP: "127.0.0.1"
+  port: 12345
+  buffer_size: 4096
+save:
+  minToSave: 0.3
+  location: "/home/carrie/Documents/Programming/Python/pyCES/Data"
+  #location: "/home/debian/Data"
