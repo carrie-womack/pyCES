@@ -12,6 +12,14 @@ TEC:
 valves:
   numValves: 2
 analog:
+  #Therm:
+  A: 1.13206975726444e-03
+  B: 2.33431080526447e-04
+  C: 9.43470416157594e-08
+  D: -2.63722384777803e-11 
+  #Press:
+  Pres_Offset: -134.64
+  Pres_Slope: 280.62
   numAnalog: 6
 UDP:
   #IP: "192.168.7.2"
