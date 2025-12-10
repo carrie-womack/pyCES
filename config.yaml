@@ -3,12 +3,15 @@ spectrometer:
   integration_time: 1000000
   type: "QEPro"
 MFC:
-  port: "ttyS2"
-  baudRate: 38400
+  port: "/dev/ttyS2"
+  baudrate: 38400
   numMFCs: 1
+  unit: "A"
 TEC:
-  port: "ttyS1"
-  baudRate: 57600
+  port: "/dev/ttyS1"
+  baudrate: 57600
+  channel: 1
+  setTemp: 23
 valves:
   numValves: 2
 analog:
@@ -22,11 +25,11 @@ analog:
   Pres_Slope: 280.62
   numAnalog: 6
 UDP:
-  #IP: "192.168.7.2"
-  IP: "127.0.0.1"
+  IP: "192.168.7.2"
+  # IP: "127.0.0.1"
   port: 12345
   buffer_size: 4096
 save:
   minToSave: 0.3
-  location: "/home/carrie/Documents/Programming/Python/pyCES/Data"
-  #location: "/home/debian/Data"
+  # location: "/home/carrie/Documents/Programming/Python/pyCES/Data"
+  location: "/home/debian/Data"
