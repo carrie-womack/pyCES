@@ -9,6 +9,7 @@ sys.path.append('/home/debian/pyMeCom')
 # import logging
 # import platform
 import time
+import config
 from mecom import MeComSerial, ResponseException, WrongChecksum
 # from serial import SerialException
 # from serial.serialutil import PortNotOpenError
@@ -16,49 +17,66 @@ from mecom import MeComSerial, ResponseException, WrongChecksum
 
 # default queries from command table below
 DEFAULT_QUERIES = [
+    "device status",
     "loop status",
     "object temperature",
-    "sink temperature"
+    "sink temperature",
     "target object temperature",
     "output current",
     "output voltage"
+    # "device temperature"
 ]
-
+# SET_OPTIONS = {
+#     "reset": []
+#     "setT"
+#     "enable"
+#     "disable"
+# }
 # syntax
-# { display_name: [parameter_id, unit], }
+# { display_name: [parameter_id, unit, abbrv], }
 COMMAND_TABLE = {
-    "loop status": [1200, ""],
-    "object temperature": [1000, "degC"],
-    "target object temperature": [3000, "degC"],
-    "output current": [1020, "A"],
-    "output voltage": [1021, "V"],
-    "sink temperature": [1001, "degC"],
-    "ramp temperature": [1011, "degC"],
+    "device status": [104, "", "stat"],
+    "loop status": [1200, "", "Tstb"],
+    "object temperature": [1000, "degC", "objT"],
+    "target object temperature": [3000, "degC", "tarT"],
+    "output current": [1020, "A", "tecI"],
+    "output voltage": [1021, "V", "tecV"],
+    "sink temperature": [1001, "degC", "snkT"],
+    "ramp temperature": [1011, "degC", "rmpT"],
+    # "device temperature": [1063, "degC", "devT"]
 }
+
+def configure_TEC():
+    """
+    read in the TEC parameters from the config file and return them
+    """
+    config_data = config.open_config()
+
+    return config_data["TEC"]    
 
 class MeerstetterTEC(object):
     """
     Controlling TEC devices via serial.
+    ****
+    Written by Meerstetter, lightly adapted here
     """
 
     def _tearDown(self):
         self.session().stop()
 
-    def __init__(self, port=None, channel=1, queries=DEFAULT_QUERIES, *args, **kwars):
-        # assert channel in (1, 2, 3, 4)
+    def __init__(self, port=None, channel=1, baudrate=57600,queries=DEFAULT_QUERIES, *args, **kwars):
         self.channel = channel
         self.port = port
-        # self.scan_timeout = scan_timeout
+        self.baudrate = baudrate
         self.queries = queries
         self._session = None
         self._connect()
 
     def _connect(self):
         # open session
-        self._session = MeComSerial(serialport=self.port)
+        self._session = MeComSerial(serialport=self.port, baudrate=self.baudrate)
         # get device address
         self.address = self._session.identify()
-        # logging.info("connected to {}".format(self.address))
 
     def session(self):
         if self._session is None:
@@ -68,10 +86,14 @@ class MeerstetterTEC(object):
     def get_data(self):
         data = {}
         for description in self.queries:
-            id, unit = COMMAND_TABLE[description]
+            id, unit, abbrv = COMMAND_TABLE[description]
             try:
                 value = self.session().get_parameter(parameter_id=id, address=self.address, parameter_instance=self.channel)
-                data.update({description: (value, unit)})
+                # data.update({description: (value, unit)})
+                if(isinstance(value, float)):
+                    new_value = int(value * 1000) / 1000
+                    value = new_value
+                data.update({abbrv: value})
             except (ResponseException, WrongChecksum) as ex:
                 self.session().stop()
                 self._session = None
@@ -86,7 +108,6 @@ class MeerstetterTEC(object):
         """
         # assertion to explicitly enter floats
         assert type(value) is float
-        # logging.info("set object temperature for channel {} to {} C".format(self.channel, value))
         return self.session().set_parameter(parameter_id=3000, value=value, address=self.address, parameter_instance=self.channel)
 
     def _set_enable(self, enable=True):
@@ -97,7 +118,6 @@ class MeerstetterTEC(object):
         :return:
         """
         value, description = (1, "on") if enable else (0, "off")
-        # logging.info("set loop for channel {} to {}".format(self.channel, description))
         return self.session().set_parameter(value=value, parameter_name="Output Enable Status", address=self.address, parameter_instance=self.channel)
 
     def enable(self):
@@ -109,14 +129,25 @@ class MeerstetterTEC(object):
 
 if __name__ == '__main__':
     # initialize controller
-    mc = MeerstetterTEC(port='/dev/ttyS1', channel=1)
+    tec_params = configure_TEC()
+    mc = MeerstetterTEC(port=tec_params["port"], channel=tec_params["channel"], baudrate=tec_params["baudrate"])
+    
+    if(len(sys.argv) > 1):
+        if(sys.argv[1] == 'enable'):
+            mc.enable()
+        elif(sys.argv[1] == 'disable'):
+            mc.disable()
+        elif(sys.argv[1] == 'setT'):
+            mc.set_temp(float(sys.argv[2]))
+        else:
+            print("Command not recognized!")
 
-    # get the values from DEFAULT_QUERIES
     while True:
         try:
             results = mc.get_data()
-            print(results['object temperature'])
+            print(results)
             time.sleep(1)
         except KeyboardInterrupt:
             print("exiting")
+            mc._tearDown()
             break

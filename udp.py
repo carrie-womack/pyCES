@@ -68,8 +68,8 @@ def main():
                 if "Also, " in message:
                     print("\t\tInstructions received")
             except TimeoutError:
-                print("\tIs anyone out there?")
-                # time.sleep(0.5)
+                # print("\tIs anyone out there?")
+                time.sleep(0.5)
         except KeyboardInterrupt:
             print("\tStopping...")
             myserver.close()

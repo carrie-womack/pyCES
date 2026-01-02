@@ -26,24 +26,25 @@ def ReadAI(config_params):
         content = file.readline()
 
         if i == 0:
-            AIdict.update({"Therm2": float(content)})
+            AIdict.update({"Therm0": float(content)}) #labeled Therm2 on schematic
         if i == 1:
-            AIdict.update({"LED_Therm": float(content)})
+            AIdict.update({"Therm1": float(content)}) #labeled LED_Therm on schematic
         if i == 2:
-            AIdict.update({"Spare_AI": float(content)}) 
+            AIdict.update({"Spare": float(content)}) #labeled Spare_AI on schematic
         if i == 3:
-            AIdict.update({"Therm1": float(content)})   
+            AIdict.update({"Therm2": float(content)})  #labeled Therm1 on schematic 
         if i == 4:
-            AIdict.update({"LED_Curr": float(content)})
+            AIdict.update({"LED_Curr": float(content)})#labeled LED_Curr on schematic
         if i == 5:
-            AIdict.update({"Press": float(content)})
+            AIdict.update({"Press": float(content)})#labeled Press on schematic
         if i == 6:
-            AIdict.update({"Vin_Volt": float(content)})
+            AIdict.update({"Vin_Volt": float(content)})#labeled Vin_Volt on schematic
         
         i +=1
     
     #Convert AIdict (analog) into ValuesDict (real units) using ConverAI function
-    ValuesDict = ConvertAI(AIdict,config_params)   
+    ValuesDict = ConvertAI(AIdict,config_params)
+    return ValuesDict
 
 def ConvertAI(AIdict,config_params):
     """Calls an analog to "real units" function for each type of variable"""
@@ -82,7 +83,7 @@ def ConvertAI(AIdict,config_params):
             ValuesDict[x] = Curr
 
     #returns a dictionary that has keys with appropriate names and values in correct units
-    print(ValuesDict)
+    # print(ValuesDict)
     return ValuesDict
 
 def AI_to_Therm(AI,A,B,C,D): 
@@ -142,7 +143,8 @@ def main():
     
     while True:
         try: 
-            ReadAI(config_params)
+            analog_string = ReadAI(config_params)
+            print(analog_string)
             time.sleep(1)
         except KeyboardInterrupt:
             print("\tClosing pyCES now")

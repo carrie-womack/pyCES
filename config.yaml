@@ -3,8 +3,8 @@ spectrometer:
   integration_time: 1000000
   type: "QEPro"
 MFC:
-  port: "/dev/ttyS2"
-  baudrate: 38400
+  port: "/dev/ttyS4"
+  baudrate: 19200
   numMFCs: 1
   unit: "A"
 TEC:
@@ -12,8 +12,18 @@ TEC:
   baudrate: 57600
   channel: 1
   setTemp: 23
-valves:
-  numValves: 2
+gpio:
+  gpioLocation: "/dev/gpiochip"
+  lineParams: #note: use gpioinfo to find the board numbers and offsets of desired pins
+    "SSR1":
+      "board": "0"
+      "offset": 28
+    "SSR2": 
+      "board": "0"
+      "offset": 18
+    "LED": 
+      "board": "1"
+      "offset": 6
 analog:
   #Therm:
   A: 1.13206975726444e-03
