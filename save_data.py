@@ -29,7 +29,9 @@ def get_file_name(path_name, file_descriptor):
 
     #Get today's date
     current_datetime = datetime.datetime.now()
-    current_date = str(current_datetime.year) + "-" + str(current_datetime.month) + "-" + str(current_datetime.day)
+    # current_year = str(current_datetime.year)
+    # current_month = str(current_datetime.month)
+    current_date = str(current_datetime.year).zfill(4) + "-" + str(current_datetime.month).zfill(2) + "-" + str(current_datetime.day).zfill(2)
 
     #Look in the data file for all files that have today's date
     data_path = Path(path_name)

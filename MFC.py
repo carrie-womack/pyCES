@@ -1,8 +1,6 @@
-import asyncio
-from alicat import basis
+import serial
 import time
 import config
-import sys
 
 def configure_MFC():
     """Opens config file MFC parameters"""
@@ -10,43 +8,84 @@ def configure_MFC():
 
     return config_data["MFC"]
 
-async def get(address, unit):
-    """Sends the MFC the unit (i.e."A") and receives the response, converting it into a dictionary"""
-    async with basis.FlowController(address, unit) as flow_controller:
-        print(await flow_controller.get())
+def initialize_MFC(config_data):
 
-async def set_flow(flow, address, unit):
-    async with basis.FlowController(address, unit) as flow_controller:
-        await flow_controller.set_setpoint(flow)
+    ser = serial.Serial(
+        port = config_data["port"],
+        baudrate = config_data["baudrate"],
+        timeout = 0.1
+    )
 
-async def set_air(air, address, unit):
-    async with basis.FlowController(address, unit) as flow_controller:
-        await flow_controller.set_gas('N2')
+    try:
+        if ser.isOpen():
+            print(f"Serial port {ser.name} opened successfully")
+    except serial.SerialException as e:
+        print(f"Serial port error: {e}")
 
-def main():
+    return ser
 
-    config_params = configure_MFC()
-    address = config_params["port"]
-    unit = config_params["unit"]
-    
-    #checks if you have given a command and runs that
-    if(len(sys.argv) > 1):
-        if(sys.argv[1] == 'setFlow'):
-            asyncio.run(set_flow(float(sys.argv[2]), address, unit))
-        elif(sys.argv[1] == 'gas'):
-            asyncio.run(set_air(str(sys.argv[2]), address, unit))
+def get_MFC_data(ser, config_data):
+
+    mfc_data = {}
+    for x, obj in config_data["unitAddr"].items():
+        # print(obj["unitID"])
+        unit = obj["unitID"]
+        name = obj["name"]
+        # unit = config_data["unit"]
+        # #sending data to MFC
+        command = f"{unit}\r"
+        ser.write(command.encode())
+        # print(f"sent: {command.strip()}")
+
+        # # time.sleep(0.05)
+
+        # #reading data from MFC
+        received_data = ser.readline()
+        # header = "Unit, temperature, flow, totalizer, setpoint, valve drive, gas"
+        header = "Unit, pressure, temperature, volflow, massflow, setpoint, gas"
+        data_name = header.split(", ")
+        # print(received_data)
+        if received_data:
+            data = received_data.decode()
+            data = data.strip()
+            data = data.split(" ")
+            mfc_single = {}
+            for x in range(len(data_name)):
+                current_data = data[x]
+                # print(x)
+                if x > 0 and x < len(data_name) - 1:
+                    current_data = float(current_data)
+                mfc_single.update({data_name[x]: current_data})
+                
+            # print(mfc_data)
         else:
-            print("Command not recognized!")
+            print("No data received within timeout period")
+        mfc_data.update({name:mfc_single})
+    return mfc_data
+        # return 0
 
-    #Prints the dictionary from the MFC once per second until interrupted
-    while True:
-        try: 
-            asyncio.run(get(address, unit))
-            time.sleep(1)
-        except KeyboardInterrupt:
-            print("\tClosing pyCES now")
-            break
+def set_MFC(ser, unit, value):
+    command = f"{unit}S{value}\r"
+    # print(command)
+    ser.write(command.encode())
+    received_data = ser.readline()
+    # print(received_data)
 
+def close_MFC(ser):
+    ser.close()
 
 if __name__ == '__main__':
-    main()
+    config_data = configure_MFC()
+    mfcID = initialize_MFC(config_data)
+    set_MFC(mfcID, "A", "0")
+    # while True:
+    # try:
+    MFC_string = get_MFC_data(mfcID, config_data)
+    print(MFC_string)
+    time.sleep(1)
+    # except KeyboardInterrupt:
+    close_MFC(mfcID)
+        # break
+
+
+

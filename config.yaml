@@ -5,8 +5,13 @@ spectrometer:
 MFC:
   port: "/dev/ttyS4"
   baudrate: 19200
-  numMFCs: 1
-  unit: "A"
+  unitAddr:
+    "MFC0":
+      "unitID": "A"
+      "name": "cavityFlow"  
+    "MFC1":
+      "unitID": "B"
+      "name": "overflow"
 TEC:
   port: "/dev/ttyS1"
   baudrate: 57600
@@ -15,10 +20,10 @@ TEC:
 gpio:
   gpioLocation: "/dev/gpiochip"
   lineParams: #note: use gpioinfo to find the board numbers and offsets of desired pins
-    "SSR1":
+    "SSR0":
       "board": "0"
       "offset": 28
-    "SSR2": 
+    "SSR1": 
       "board": "0"
       "offset": 18
     "LED": 
@@ -35,9 +40,10 @@ analog:
   Pres_Slope: 280.62
   numAnalog: 6
 UDP:
-  IP: "192.168.7.2"
-  # IP: "127.0.0.1"
-  port: 12345
+  server_IP: "192.168.7.2"  #address of Beaglebone
+  server_port: 12345 
+  client_IP: "192.168.7.1"  #address of laptop running Labview
+  client_port: 12346
   buffer_size: 4096
 save:
   minToSave: 0.3

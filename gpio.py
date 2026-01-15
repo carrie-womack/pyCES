@@ -59,9 +59,11 @@ def read_gpio_value_by_offset(ID, offset):
     
     return ID.get_value(offset)
 
-def release_gpio_pins(ID):
+def release_gpio_pins(lineParams):
     """Release the line when done. Not sure if necessary, but why not"""
-    ID.release()
+    for x, obj in lineParams.items():
+        ID = obj["ID"]   
+        ID.release()
 
 def demo_toggle_valve(lineParams):
     """Demo program that toggles all the pins every 
