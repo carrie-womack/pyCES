@@ -1,8 +1,10 @@
 --- # CES Configuration parameters
 spectrometer:
+  enable: 0
   integration_time: 1000000
   type: "QEPro"
 MFC:
+  enable: 1
   port: "/dev/ttyS4"
   baudrate: 19200
   unitAddr:
@@ -13,11 +15,13 @@ MFC:
       "unitID": "B"
       "name": "overflow"
 TEC:
+  enable: 0
   port: "/dev/ttyS1"
   baudrate: 57600
   channel: 1
   setTemp: 23
 gpio:
+  enable: 1
   gpioLocation: "/dev/gpiochip"
   lineParams: #note: use gpioinfo to find the board numbers and offsets of desired pins
     "SSR0":
@@ -30,6 +34,7 @@ gpio:
       "board": "1"
       "offset": 6
 analog:
+  enable: 1
   #Therm:
   A: 1.13206975726444e-03
   B: 2.33431080526447e-04
@@ -46,6 +51,7 @@ UDP:
   client_port: 12346
   buffer_size: 4096
 save:
-  minToSave: 0.3
+  minToSave: 30
   # location: "/home/carrie/Documents/Programming/Python/pyCES/Data"
-  location: "/home/debian/Data"
+  # location: "/home/debian/Data"
+  location: "/media/card/Data"

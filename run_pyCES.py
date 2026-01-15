@@ -27,20 +27,29 @@ def main():
     tec_params = TEC.configure_TEC() #read in TEC serial port
     analog_params = analog.configure_AI() #read in analog conversion factors
     gpio_params = gpio.configure_gpio() #read in the GPIO pin parameters
-    MFC_params = MFC.configure_MFC() #read in MFC addresses
+    mfc_params = MFC.configure_MFC() #read in MFC addresses
+
+    enable_spec = spec_params["enable"]
+    enable_tec = tec_params["enable"]
+    enable_gpio = gpio_params["enable"]
+    enable_mfc = mfc_params["enable"]
+    enable_analog = analog_params["enable"]
 
     #initialize any components that have been enabled
     status = f""
-    tecID = TEC.MeerstetterTEC(port=tec_params["port"], channel=tec_params["channel"], baudrate=tec_params["baudrate"])
-    gpioID = gpio.initialize_gpio(gpio_params)
-    mfcID = MFC.initialize_MFC(MFC_params)
-
     file_path_name = save_params["location"]
     min_between_file_saves = save_params["minToSave"]
     sec_between_file_saves = int(min_between_file_saves * 60)
 
-    specID = ocean_spectrometer.initialize_spectrometer(spec_params)
-    wavelengths = specID.wavelengths()
+    if enable_tec:
+        tecID = TEC.MeerstetterTEC(port=tec_params["port"], channel=tec_params["channel"], baudrate=tec_params["baudrate"])
+    if enable_gpio:
+        gpioID = gpio.initialize_gpio(gpio_params)
+    if enable_mfc:
+        mfcID = MFC.initialize_MFC(mfc_params)
+    if enable_spec:
+        specID = ocean_spectrometer.initialize_spectrometer(spec_params)
+        wavelengths = specID.wavelengths()
 
     print(f"UDP Server listening on {udp_params.server_IP}:{udp_params.server_port}")
     myserver = udp.open_UDP_server(udp_params)
@@ -61,14 +70,14 @@ def main():
                 print(commands)
                 for x, obj in commands.items():
                     print(x)
-                    if x == 'SetGPIO':
+                    if x == 'SetGPIO' and enable_gpio == 1:
                         for y, value in obj.items():
                             print(f"{y} = {value}")
                             gpio.set_gpio_value(gpioID[y]["ID"], gpioID[y]["offset"], value)
-                    if x == 'SetMFC':
+                    if x == 'SetMFC' and enable_mfc == 1:
                         for y, value in obj.items():
                             print(f"{y} = {value}")
-                            MFC.set_MFC(mfcID, MFC_params["unitAddr"][y]["unitID"], value)
+                            MFC.set_MFC(mfcID, mfc_params["unitAddr"][y]["unitID"], value)
                     if x == 'SetSave':
                         for y, value in obj.items():
                             if y == 'Save':
@@ -78,29 +87,44 @@ def main():
             except TimeoutError:
                 # time.sleep(0.5)
                 # print("I got nothing")
-                pass
+                if enable_spec == 0:
+                    time.sleep(1)
+                
 
             current_time = datetime.datetime.now()
             status = str(current_time)
             
-            tec_string = tecID.get_data()
-            status += ';TEC:' + json.dumps(tec_string)
+            if enable_tec:
+                tec_string = tecID.get_data()
+                status += ';TEC:' + json.dumps(tec_string)
+            else:
+                status += ';TEC:' 
 
-            gpio_string = gpio.read_gpio_value_all(gpioID)
-            status += ';gpio:' + json.dumps(gpio_string)
+            if enable_gpio:
+                gpio_string = gpio.read_gpio_value_all(gpioID)
+                status += ';gpio:' + json.dumps(gpio_string)
+            else:
+                status += ";gpio:"
 
-            analog_string = analog.ReadAI(analog_params)
-            status += ';analog:' + json.dumps(analog_string)
+            if enable_analog:
+                analog_string = analog.ReadAI(analog_params)
+                status += ';analog:' + json.dumps(analog_string)
+            else:
+                status += ";analog:"
 
-            MFC_string = MFC.get_MFC_data(mfcID, MFC_params)
-            status += ";MFC:" + json.dumps(MFC_string)
+            if enable_mfc:
+                MFC_string = MFC.get_MFC_data(mfcID, mfc_params)
+                status += ";MFC:" + json.dumps(MFC_string)
+            else:
+                status += ";MFC:"
 
-            intensities = specID.intensities()
-            spectra_string = ','.join(intensities.astype(str))
-            status += ";spec:" + spectra_string
+            if enable_spec:
+                intensities = specID.intensities()
+                spectra_string = ','.join(intensities.astype(str))
+                status += ";spec:" + spectra_string
+            else:  
+                status += ";spec:"
 
-            # status = "Hello!!"
-            # print(len(status))
             myserver.sendto(status.encode('utf-8'), client_address)
             # print(f"Sent response to {address}: '{status}'") 
             
@@ -125,10 +149,14 @@ def main():
 
         except KeyboardInterrupt:
             print("\tClosing pyCES now")
-            ocean_spectrometer.close_spectrometer(specID)
-            tecID._tearDown()
-            gpio.release_gpio_pins(gpioID)
-            MFC.close_MFC(mfcID)
+            if enable_spec:
+                ocean_spectrometer.close_spectrometer(specID)
+            if enable_tec:
+                tecID._tearDown()
+            if enable_gpio:
+                gpio.release_gpio_pins(gpioID)
+            if enable_mfc:
+                MFC.close_MFC(mfcID)
             myserver.close()
             break
 
