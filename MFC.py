@@ -42,20 +42,24 @@ def get_MFC_data(ser, config_data):
         # #reading data from MFC
         received_data = ser.readline()
         # header = "Unit, temperature, flow, totalizer, setpoint, valve drive, gas"
-        header = "Unit, pressure, temperature, volflow, massflow, setpoint, gas"
+        header = "Unit, pressure, temperature, volflow, massflow, setpoint, , , , , gas"
         data_name = header.split(", ")
+        # print(len(data_name))
         # print(received_data)
         if received_data:
             data = received_data.decode()
+            # print(data)
             data = data.strip()
+            # print(data)
             data = data.split(" ")
+            # print(data)
             mfc_single = {}
             for x in range(len(data_name)):
                 current_data = data[x]
-                # print(x)
-                if x > 0 and x < len(data_name) - 1:
-                    current_data = float(current_data)
-                mfc_single.update({data_name[x]: current_data})
+                if len(data_name[x]) > 0:
+                    if x > 0 and x < len(data_name) - 1:
+                        current_data = float(current_data)
+                    mfc_single.update({data_name[x]: current_data})
                 
             # print(mfc_data)
         else:

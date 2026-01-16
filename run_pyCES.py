@@ -1,3 +1,4 @@
+
 """
 Main pyCES code
 ================================
@@ -84,6 +85,16 @@ def main():
                                 save = int(value)
                                 if value == 1:
                                     new_file = 1
+                    if x == 'SetTEC':
+                        for y, value in obj.items():
+                            print(f"{y} = {value}")
+                            if y == "TargetT":
+                                tecID.set_temp(float(value))
+                            if y == "Enable":
+                                if value == 1:
+                                    tecID.enable()
+                                if value == 0:
+                                    tecID.disable()
             except TimeoutError:
                 # time.sleep(0.5)
                 # print("I got nothing")
@@ -126,7 +137,7 @@ def main():
                 status += ";spec:"
 
             myserver.sendto(status.encode('utf-8'), client_address)
-            # print(f"Sent response to {address}: '{status}'") 
+            # print(f"Sent response to {client_address}: '{status}'") 
             
             if save == 1:            
                 time_since_new_file = current_time - new_file_time
