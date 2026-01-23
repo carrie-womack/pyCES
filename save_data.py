@@ -54,7 +54,8 @@ def get_file_name(path_name, file_descriptor):
     print(f"Filename: {current_file}")
 
     #Convert the file name to a path and return it
-    return Path(current_file)
+    # return Path(current_file)
+    return current_file
 
 def save_sample_aux_data_to_file(file_name):
 
@@ -92,8 +93,8 @@ def main():
     sec_between_file_saves = int(min_between_file_saves * 60)
 
     new_file_time = datetime.datetime.now()
-    aux_file_name = get_file_name(file_path_name, "aux")
-    spec_file_name = get_file_name(file_path_name, "spec")
+    aux_file_name = Path(get_file_name(file_path_name, "aux"))
+    spec_file_name = Path(get_file_name(file_path_name, "spec"))
 
     while(True):
         try:

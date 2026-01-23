@@ -133,9 +133,21 @@ def AI_to_Curr(AI):
         return 0
 
     else: 
-        Curr = AI*1 #placeholder
+        Curr = AI/2270 #placeholder
 
         return round(Curr,2)
+
+def makeAuxFileString(analog_string):
+    # print(analog_string)
+    aux_string = []
+    # print(analog_string["Therm0"])
+    aux_string.append(analog_string["Therm0"])
+    aux_string.append(analog_string["Therm1"])
+    aux_string.append(analog_string["Press"])
+    aux_string.append(analog_string["LED_Curr"])
+    # print(aux_string)   
+
+    return aux_string
 
 def main():
 
@@ -145,6 +157,8 @@ def main():
         try: 
             analog_string = ReadAI(config_params)
             print(analog_string)
+            auxfile_string = makeAuxFileString(analog_string)
+            print(auxfile_string)
             time.sleep(1)
         except KeyboardInterrupt:
             print("\tClosing pyCES now")

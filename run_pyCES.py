@@ -1,9 +1,6 @@
 
 """
 Main pyCES code
-================================
-*Still very much under development! Don't try to use it like this!*
-
 """
 # pyCES modules:
 import ocean_spectrometer
@@ -18,6 +15,7 @@ import MFC
 import time
 import datetime
 import json
+from pathlib import Path
 
 def main():
 
@@ -60,24 +58,23 @@ def main():
     save = 0
     new_file = 1
     new_file_time = datetime.datetime.now()
+    current_state = 1
+    aux_file_name = ""
     while True:
         try:
             try:
                 # Listen for a message from LV. If none, will jump to exception
                 data, address = myserver.recvfrom(udp_params.buffer)
                 message = data.decode('utf-8')
-                # print(f"Received from {address}: {message}")
                 commands = json.loads(message)
-                print(commands)
+                # print(commands)
                 for x, obj in commands.items():
                     print(x)
-                    if x == 'SetGPIO' and enable_gpio == 1:
+                    if x == 'SetGPIO' and enable_gpio:
                         for y, value in obj.items():
-                            print(f"{y} = {value}")
                             gpio.set_gpio_value(gpioID[y]["ID"], gpioID[y]["offset"], value)
-                    if x == 'SetMFC' and enable_mfc == 1:
+                    if x == 'SetMFC' and enable_mfc:
                         for y, value in obj.items():
-                            print(f"{y} = {value}")
                             MFC.set_MFC(mfcID, mfc_params["unitAddr"][y]["unitID"], value)
                     if x == 'SetSave':
                         for y, value in obj.items():
@@ -85,9 +82,8 @@ def main():
                                 save = int(value)
                                 if value == 1:
                                     new_file = 1
-                    if x == 'SetTEC':
+                    if x == 'SetTEC' and enable_tec:
                         for y, value in obj.items():
-                            print(f"{y} = {value}")
                             if y == "TargetT":
                                 tecID.set_temp(float(value))
                             if y == "Enable":
@@ -95,48 +91,61 @@ def main():
                                     tecID.enable()
                                 if value == 0:
                                     tecID.disable()
+                    if x == 'SetState':
+                        for y, value in obj.items():
+                            current_state = int(value)
+
             except TimeoutError:
-                # time.sleep(0.5)
-                # print("I got nothing")
                 if enable_spec == 0:
                     time.sleep(1)
-                
-
-            current_time = datetime.datetime.now()
-            status = str(current_time)
             
+            current_time = datetime.datetime.now()
+            status = str(current_time) + ";file:" + aux_file_name
+            aux_string = [time.time() + 2082844800, current_state]
+            # start_time = time.time()
             if enable_tec:
                 tec_string = tecID.get_data()
+                tec_aux_string = TEC.makeAuxFileString(tec_string)
+                aux_string.extend(tec_aux_string)
                 status += ';TEC:' + json.dumps(tec_string)
             else:
                 status += ';TEC:' 
-
+            # end_time = time.time()
             if enable_gpio:
                 gpio_string = gpio.read_gpio_value_all(gpioID)
+                gpio_aux_string = gpio.makeAuxFileString(gpio_string)
+                aux_string.extend(gpio_aux_string)
                 status += ';gpio:' + json.dumps(gpio_string)
             else:
                 status += ";gpio:"
-
+            
             if enable_analog:
                 analog_string = analog.ReadAI(analog_params)
+                analog_aux_string = analog.makeAuxFileString(analog_string)
+                aux_string.extend(analog_aux_string)
                 status += ';analog:' + json.dumps(analog_string)
             else:
                 status += ";analog:"
-
+            
             if enable_mfc:
                 MFC_string = MFC.get_MFC_data(mfcID, mfc_params)
+                MFC_aux_string = MFC.makeAuxFileString(MFC_string)
+                aux_string.extend(MFC_aux_string)
                 status += ";MFC:" + json.dumps(MFC_string)
             else:
                 status += ";MFC:"
-
+            
             if enable_spec:
                 intensities = specID.intensities()
                 spectra_string = ','.join(intensities.astype(str))
                 status += ";spec:" + spectra_string
             else:  
                 status += ";spec:"
-
+            
+            # print(aux_string)
+            
             myserver.sendto(status.encode('utf-8'), client_address)
+            
             # print(f"Sent response to {client_address}: '{status}'") 
             
             if save == 1:            
@@ -147,17 +156,30 @@ def main():
                     aux_file_name = save_data.get_file_name(file_path_name, "aux")
                     spec_file_name = save_data.get_file_name(file_path_name, "spec")
                     new_file = 0
+                    # print(aux_file_name)
+                    name_split = aux_file_name.split("-")
+                    # print(name_split)
+                    suffix = name_split[-2]
+                    # print(suffix)
+                    # suffix = file_full_name.split("-")
+                    aux_header = f"Timestamp{suffix}\tCurrent_state{suffix}\tT_C_LED{suffix}\tT_C_Heatsink{suffix}\tTEC_I{suffix}\tTEC_V{suffix}\tV_ZAHe{suffix}\tV_NO2addn{suffix}\tV_LED{suffix}\tCavity_T{suffix}\tBox_T{suffix}\tCavity_P{suffix}\tCavity_flow{suffix}\tCavity_flow_setpoint{suffix}\tCavity_MFC_pressure{suffix}\tCavity_MFC_temp{suffix}\tOverflow{suffix}\tOverflow_setpoint{suffix}\tOverflow_MFC_pressure{suffix}\tOverflow_MFC_temperature{suffix}\n"
+                    auxfile = open(Path(aux_file_name), "a")
+                    auxfile.write(f"{aux_header}\n")
+                    auxfile.close()
 
-                auxfile = open(aux_file_name, "a")
-                auxfile.write(f"{current_time}\t{tec_string}\n")
+                auxfile = open(Path(aux_file_name), "a")
+                aux_string_to_save = '\t'.join([str(s) for s in aux_string])
+                auxfile.write(f"{aux_string_to_save}\n")
                 auxfile.close()
                 
                 
-                specfile = open(spec_file_name, "a")
+                specfile = open(Path(spec_file_name), "a")
                 spectra_string = '\t'.join(intensities.astype(str))
                 specfile.write(f"{current_time}\t{spectra_string}\n")
                 specfile.close()             
-
+            
+            # loop = end_time - start_time
+            # print(f"Loop time: {loop} seconds")
         except KeyboardInterrupt:
             print("\tClosing pyCES now")
             if enable_spec:

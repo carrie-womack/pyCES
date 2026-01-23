@@ -1,19 +1,11 @@
 """
 Runs the Meerstetter TEC-1092 module
-*********
-Under development. Don't use yet!
 """
 import sys
 sys.path.append('/home/debian/pyMeCom')
-
-# import logging
-# import platform
 import time
 import config
 from mecom import MeComSerial, ResponseException, WrongChecksum
-# from serial import SerialException
-# from serial.serialutil import PortNotOpenError
-
 
 # default queries from command table below
 DEFAULT_QUERIES = [
@@ -69,12 +61,13 @@ class MeerstetterTEC(object):
         self.port = port
         self.baudrate = baudrate
         self.queries = queries
+        self.timeout = 0.05
         self._session = None
         self._connect()
 
     def _connect(self):
         # open session
-        self._session = MeComSerial(serialport=self.port, baudrate=self.baudrate)
+        self._session = MeComSerial(serialport=self.port, baudrate=self.baudrate, timeout=self.timeout)
         # get device address
         self.address = self._session.identify()
 
@@ -126,6 +119,13 @@ class MeerstetterTEC(object):
     def disable(self):
         return self._set_enable(False)
 
+def makeAuxFileString(tec_string):
+    aux_string = []
+    aux_string.append(tec_string["objT"])
+    aux_string.append(tec_string["snkT"])
+    aux_string.append(tec_string["tecI"])
+    aux_string.append(tec_string["tecV"])
+    return aux_string
 
 if __name__ == '__main__':
     # initialize controller
@@ -146,6 +146,8 @@ if __name__ == '__main__':
         try:
             results = mc.get_data()
             print(results)
+            auxfile_string = makeAuxFileString(results)
+            print(auxfile_string)
             time.sleep(1)
         except KeyboardInterrupt:
             print("exiting")

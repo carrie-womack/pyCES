@@ -1,12 +1,14 @@
 --- # CES Configuration parameters
 spectrometer:
-  enable: 0
+  enable: 1
   integration_time: 1000000
   type: "QEPro"
 MFC:
   enable: 1
-  port: "/dev/ttyS4"
-  baudrate: 19200
+  port: "/dev/ttyS2"
+  baudrate: 38400
+  # header: "Unit, pressure, temperature, volflow, massflow, setpoint, , , , , gas" #FOR MC STYLE
+  header: "Unit, temperature, flow, totalizer, setpoint, valve drive, gas" #FOR BASIS STYLE
   unitAddr:
     "MFC0":
       "unitID": "A"
@@ -15,7 +17,7 @@ MFC:
       "unitID": "B"
       "name": "overflow"
 TEC:
-  enable: 0
+  enable: 1
   port: "/dev/ttyS1"
   baudrate: 57600
   channel: 1

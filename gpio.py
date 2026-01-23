@@ -90,6 +90,13 @@ def demo_toggle_valve(lineParams):
                 ID = obj["ID"]
                 release_gpio_pins(ID)
             break
+            
+def makeAuxFileString(gpio_string):
+    aux_string = []
+    aux_string.append(gpio_string["SSR0"])
+    aux_string.append(gpio_string["SSR1"])
+    aux_string.append(gpio_string["LED"])
+    return aux_string
 
 if __name__ == '__main__':
     config_params = configure_gpio()
