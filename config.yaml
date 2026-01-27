@@ -1,7 +1,7 @@
 --- # CES Configuration parameters
 spectrometer:
   enable: 1
-  integration_time: 1000000
+  integration_time: 1000000 #in microseconds
   type: "QEPro"
 MFC:
   enable: 1
@@ -43,7 +43,7 @@ analog:
   C: 9.43470416157594e-08
   D: -2.63722384777803e-11 
   #Press:
-  Pres_Offset: -134.64
+  Pres_Offset: -134.64 #offset and slope of the pressure (mbar) vs voltage plot
   Pres_Slope: 280.62
   numAnalog: 6
 UDP:
@@ -54,6 +54,5 @@ UDP:
   buffer_size: 4096
 save:
   minToSave: 30
-  # location: "/home/carrie/Documents/Programming/Python/pyCES/Data"
   # location: "/home/debian/Data"
   location: "/media/card/Data"
