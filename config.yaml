@@ -6,9 +6,11 @@ spectrometer:
 MFC:
   enable: 1
   port: "/dev/ttyS2"
-  baudrate: 19200
-  header: "Unit, pressure, temperature, flow, massflow, setpoint, , , , , gas" #FOR MC STYLE
-  #header: "Unit, temperature, flow, totalizer, setpoint, valve drive, gas" #FOR BASIS STYLE
+  baudrate: 28400
+  #model: "MC"
+  model: "BASIS"
+  #header: "Unit, pressure, temperature, flow, massflow, setpoint, , , , , gas" #FOR MC STYLE
+  header: "Unit, temperature, flow, totalizer, setpoint, valve drive, gas" #FOR BASIS STYLE
   unitAddr:
     "MFC0":
       "unitID": "A"

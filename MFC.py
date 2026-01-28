@@ -24,18 +24,28 @@ def initialize_MFC(config_data):
 
     return ser
 
-def makeAuxFileString(mfc_string):
+def makeAuxFileString(mfc_string, model):
     aux_string = []
-    aux_string.append(mfc_string["cavityFlow"]["flow"])
-    aux_string.append(mfc_string["cavityFlow"]["setpoint"])
-    #aux_string.append(mfc_string["cavityFlow"]["pressure"])
-    aux_string.append(mfc_string["cavityFlow"]["temperature"])
+    if model == "MC":
+        aux_string.append(mfc_string["cavityFlow"]["flow"])
+        aux_string.append(mfc_string["cavityFlow"]["setpoint"])
+        aux_string.append(mfc_string["cavityFlow"]["pressure"])
+        aux_string.append(mfc_string["cavityFlow"]["temperature"])
 
-    aux_string.append(mfc_string["overflow"]["flow"])
-    aux_string.append(mfc_string["overflow"]["setpoint"])
-    #aux_string.append(mfc_string["overflow"]["pressure"])
-    aux_string.append(mfc_string["overflow"]["temperature"])
+        aux_string.append(mfc_string["overflow"]["flow"])
+        aux_string.append(mfc_string["overflow"]["setpoint"])
+        aux_string.append(mfc_string["overflow"]["pressure"])
+        aux_string.append(mfc_string["overflow"]["temperature"])
+    if model == "BASIS":
+        aux_string.append(mfc_string["cavityFlow"]["flow"])
+        aux_string.append(mfc_string["cavityFlow"]["setpoint"])
+        # aux_string.append(mfc_string["cavityFlow"]["pressure"])
+        aux_string.append(mfc_string["cavityFlow"]["temperature"])
 
+        aux_string.append(mfc_string["overflow"]["flow"])
+        aux_string.append(mfc_string["overflow"]["setpoint"])
+        # aux_string.append(mfc_string["overflow"]["pressure"])
+        aux_string.append(mfc_string["overflow"]["temperature"])
     return aux_string
 
 def get_MFC_data(ser, config_data):
@@ -82,8 +92,8 @@ if __name__ == '__main__':
         try:
             MFC_string = get_MFC_data(mfcID, config_data)
             print(MFC_string)
-            # auxfile_string = makeAuxFileString(MFC_string)
-            # print(auxfile_string)
+            auxfile_string = makeAuxFileString(MFC_string, config_data["model"])
+            print(auxfile_string)
             time.sleep(1)
         except KeyboardInterrupt:
             close_MFC(mfcID)

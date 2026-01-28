@@ -129,9 +129,9 @@ def main():
             
             if enable_mfc:
                 MFC_string = MFC.get_MFC_data(mfcID, mfc_params)
-                MFC_aux_string = MFC.makeAuxFileString(MFC_string)
+                MFC_aux_string = MFC.makeAuxFileString(MFC_string, mfc_params["model"])
                 aux_string.extend(MFC_aux_string)
-                status += ";MFC:" + json.dumps(MFC_string)
+                status += ";MFC:" + mfc_params["model"] + ":" + json.dumps(MFC_string)
             else:
                 status += ";MFC:"
             
@@ -142,7 +142,7 @@ def main():
             else:  
                 status += ";spec:"
             
-            # print(aux_string)
+            print(aux_string)
             
             myserver.sendto(status.encode('utf-8'), client_address)
             
@@ -163,7 +163,7 @@ def main():
                     # print(suffix)
                     # suffix = file_full_name.split("-")
                     #aux_header = f"Timestamp{suffix}\tCurrent_state{suffix}\tT_C_LED{suffix}\tT_C_Heatsink{suffix}\tTEC_I{suffix}\tTEC_V{suffix}\tV_ZAHe{suffix}\tV_NO2addn{suffix}\tV_LED{suffix}\tCavity_T{suffix}\tBox_T{suffix}\tCavity_P{suffix}\tCavity_flow{suffix}\tCavity_flow_setpoint{suffix}\tCavity_MFC_pressure{suffix}\tCavity_MFC_temp{suffix}\tOverflow{suffix}\tOverflow_setpoint{suffix}\tOverflow_MFC_pressure{suffix}\tOverflow_MFC_temperature{suffix}\n"
-                    aux_header = f"Timestamp{suffix}\tCurrent_state{suffix}\tT_C_LED{suffix}\tT_C_Heatsink{suffix}\tTEC_I{suffix}\tTEC_V{suffix}\tV_ZAHe{suffix}\tV_NO2addn{suffix}\tV_LED{suffix}\tCavity_T{suffix}\tBox_T{suffix}\tCavity_P{suffix}\tCavity_flow{suffix}\tCavity_flow_setpoint{suffix}\tCavity_MFC_temp{suffix}\tOverflow{suffix}\tOverflow_setpoint{suffix}\tOverflow_MFC_temperature{suffix}\n"
+                    aux_header = f"Timestamp{suffix}\tCurrent_state{suffix}\tT_C_LED{suffix}\tT_C_Heatsink{suffix}\tTEC_I{suffix}\tTEC_V{suffix}\tV_ZAHe{suffix}\tV_NO2addn{suffix}\tV_LED{suffix}\tCavity_T{suffix}\tBox_T{suffix}\tCavity_P{suffix}\tCavity_flow{suffix}\tCavity_flow_setpoint{suffix}\tCavity_MFC_temp{suffix}\tOverflow{suffix}\tOverflow_setpoint{suffix}\tOverflow_MFC_temperature{suffix}"
 
                     auxfile = open(Path(aux_file_name), "a")
                     auxfile.write(f"{aux_header}\n")
