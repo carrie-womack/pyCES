@@ -27,12 +27,12 @@ def initialize_MFC(config_data):
 def makeAuxFileString(mfc_string):
     aux_string = []
     aux_string.append(mfc_string["cavityFlow"]["flow"])
-    #aux_string.append(mfc_string["cavityFlow"]["setpoint"])
+    aux_string.append(mfc_string["cavityFlow"]["setpoint"])
     #aux_string.append(mfc_string["cavityFlow"]["pressure"])
     aux_string.append(mfc_string["cavityFlow"]["temperature"])
 
     aux_string.append(mfc_string["overflow"]["flow"])
-    #aux_string.append(mfc_string["overflow"]["setpoint"])
+    aux_string.append(mfc_string["overflow"]["setpoint"])
     #aux_string.append(mfc_string["overflow"]["pressure"])
     aux_string.append(mfc_string["overflow"]["temperature"])
 
