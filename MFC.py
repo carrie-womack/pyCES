@@ -51,7 +51,7 @@ def get_MFC_data(ser, config_data):
 
         # #reading data from MFC
         received_data = ser.readline()
-        data = recieved_data.decode()
+        data = received_data.decode()
         if data:
             data = data.strip()
             data = data.split(" ")
