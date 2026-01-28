@@ -86,9 +86,9 @@ def demo_toggle_valve(lineParams):
             time.sleep(2)
         except KeyboardInterrupt:
             print("Exiting...")
-            for x, obj in lineParams.items():
-                ID = obj["ID"]
-                release_gpio_pins(ID)
+            #for x, obj in lineParams.items():
+                #ID = obj["ID"]
+            release_gpio_pins(lineParams)
             break
             
 def makeAuxFileString(gpio_string):
