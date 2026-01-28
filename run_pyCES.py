@@ -162,7 +162,9 @@ def main():
                     suffix = name_split[-2]
                     # print(suffix)
                     # suffix = file_full_name.split("-")
-                    aux_header = f"Timestamp{suffix}\tCurrent_state{suffix}\tT_C_LED{suffix}\tT_C_Heatsink{suffix}\tTEC_I{suffix}\tTEC_V{suffix}\tV_ZAHe{suffix}\tV_NO2addn{suffix}\tV_LED{suffix}\tCavity_T{suffix}\tBox_T{suffix}\tCavity_P{suffix}\tCavity_flow{suffix}\tCavity_flow_setpoint{suffix}\tCavity_MFC_pressure{suffix}\tCavity_MFC_temp{suffix}\tOverflow{suffix}\tOverflow_setpoint{suffix}\tOverflow_MFC_pressure{suffix}\tOverflow_MFC_temperature{suffix}\n"
+                    #aux_header = f"Timestamp{suffix}\tCurrent_state{suffix}\tT_C_LED{suffix}\tT_C_Heatsink{suffix}\tTEC_I{suffix}\tTEC_V{suffix}\tV_ZAHe{suffix}\tV_NO2addn{suffix}\tV_LED{suffix}\tCavity_T{suffix}\tBox_T{suffix}\tCavity_P{suffix}\tCavity_flow{suffix}\tCavity_flow_setpoint{suffix}\tCavity_MFC_pressure{suffix}\tCavity_MFC_temp{suffix}\tOverflow{suffix}\tOverflow_setpoint{suffix}\tOverflow_MFC_pressure{suffix}\tOverflow_MFC_temperature{suffix}\n"
+                    aux_header = f"Timestamp{suffix}\tCurrent_state{suffix}\tT_C_LED{suffix}\tT_C_Heatsink{suffix}\tTEC_I{suffix}\tTEC_V{suffix}\tV_ZAHe{suffix}\tV_NO2addn{suffix}\tV_LED{suffix}\tCavity_T{suffix}\tBox_T{suffix}\tCavity_P{suffix}\tCavity_flow{suffix}\tCavity_flow_setpoint{suffix}\tCavity_MFC_temp{suffix}\tOverflow{suffix}\tOverflow_setpoint{suffix}\tOverflow_MFC_temperature{suffix}\n"
+
                     auxfile = open(Path(aux_file_name), "a")
                     auxfile.write(f"{aux_header}\n")
                     auxfile.close()
