@@ -142,7 +142,7 @@ def main():
             else:  
                 status += ";spec:"
             
-            print(aux_string)
+            # print(aux_string)
             
             myserver.sendto(status.encode('utf-8'), client_address)
             

@@ -1,6 +1,7 @@
 import serial
 import time
 import config
+import sys
 
 def configure_MFC():
     """Opens config file MFC parameters"""
@@ -29,12 +30,12 @@ def makeAuxFileString(mfc_string, model):
     if model == "MC":
         aux_string.append(mfc_string["cavityFlow"]["flow"])
         aux_string.append(mfc_string["cavityFlow"]["setpoint"])
-        aux_string.append(mfc_string["cavityFlow"]["pressure"])
+        # aux_string.append(mfc_string["cavityFlow"]["pressure"])
         aux_string.append(mfc_string["cavityFlow"]["temperature"])
 
         aux_string.append(mfc_string["overflow"]["flow"])
         aux_string.append(mfc_string["overflow"]["setpoint"])
-        aux_string.append(mfc_string["overflow"]["pressure"])
+        # aux_string.append(mfc_string["overflow"]["pressure"])
         aux_string.append(mfc_string["overflow"]["temperature"])
     if model == "BASIS":
         aux_string.append(mfc_string["cavityFlow"]["flow"])
@@ -71,14 +72,21 @@ def get_MFC_data(ser, config_data):
                 if len(data_name[x]) > 0:
                     if x > 0 and x < len(data_name) - 1:
                         current_data = float(current_data)
-                    mfc_single.update({data_name[x]: current_data})
+                    if data_name[x] == "Unit" or data_name[x] == "temperature" or data_name[x] == "flow" or data_name[x] == "setpoint" or data_name[x] == "gas":
+                        mfc_single.update({data_name[x]: current_data})
+            mfc_data.update({name:mfc_single})
         else:
             print("No data received within timeout period")
-        mfc_data.update({name:mfc_single})
+        
     return mfc_data
 
 def set_MFC(ser, unit, value):
     command = f"{unit}S{value}\r"
+    ser.write(command.encode())
+    received_data = ser.readline()
+
+def change_MFC_address(ser, unit, newunit):
+    command = f"{unit}@={newunit}"
     ser.write(command.encode())
     received_data = ser.readline()
 
@@ -88,12 +96,25 @@ def close_MFC(ser):
 if __name__ == '__main__':
     config_data = configure_MFC()
     mfcID = initialize_MFC(config_data)
+ 
+    if(len(sys.argv) > 1):
+        if(sys.argv[1] == 'setflow'):
+            unit = sys.argv[2]
+            value = sys.argv[3]
+            set_MFC(mfcID, unit, value)
+
+        elif(sys.argv[1] == 'setAddress'):
+            unit = sys.argv[2]
+            newunit = sys.argv[3]
+            change_MFC_address(mfcID, unit, newunit)
+        else:
+            print("Command not recognized!")
     while True:
         try:
             MFC_string = get_MFC_data(mfcID, config_data)
             print(MFC_string)
-            auxfile_string = makeAuxFileString(MFC_string, config_data["model"])
-            print(auxfile_string)
+            # auxfile_string = makeAuxFileString(MFC_string, config_data["model"])
+            # print(auxfile_string)
             time.sleep(1)
         except KeyboardInterrupt:
             close_MFC(mfcID)
