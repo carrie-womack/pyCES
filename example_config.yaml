@@ -1,16 +1,16 @@
 --- # CES Configuration parameters
 spectrometer:
   enable: 1
-  integration_time: 1000000 #in microseconds
+  integration_time: 200000 #in microseconds
   type: "QEPro"
 MFC:
   enable: 1
   port: "/dev/ttyS2"
-  baudrate: 38400
-  #model: "MC"
-  model: "BASIS"
-  #header: "Unit, pressure, temperature, flow, massflow, setpoint, , , , , gas" #FOR MC STYLE
-  header: "Unit, temperature, flow, totalizer, setpoint, valve drive, gas" #FOR BASIS STYLE
+  baudrate: 19200
+  model: "MC"
+  #model: "BASIS"
+  header: "Unit, pressure, temperature, flow, massflow, setpoint, , , , , gas" #FOR MC STYLE
+  #header: "Unit, temperature, flow, totalizer, setpoint, valve drive, gas" #FOR BASIS STYLE
   unitAddr:
     "MFC0":
       "unitID": "A"
@@ -45,8 +45,8 @@ analog:
   C: 9.43470416157594e-08
   D: -2.63722384777803e-11 
   #Press:
-  Pres_Offset: 0 #offset and slope of the pressure (mbar) vs voltage plot
-  Pres_Slope: 200
+  Pres_Offset: -131.04 #offset and slope of the pressure (mbar) vs voltage plot
+  Pres_Slope: 238.55
   # Pres_Offset: -134.64 #offset and slope of the pressure (mbar) vs voltage plot
   # Pres_Slope: 280.62
   numAnalog: 6

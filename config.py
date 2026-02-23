@@ -11,7 +11,7 @@ def open_config():
     uses yaml.safe_load to convert it to a dictionary
     """
     try:
-        with open('config.yaml', 'r') as config_stream:
+        with open('/home/debian/config/config.yaml', 'r') as config_stream:
             config_data = yaml.safe_load(config_stream)
         return config_data
     except:
