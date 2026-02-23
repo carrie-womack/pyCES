@@ -129,9 +129,12 @@ def main():
             
             if enable_mfc:
                 MFC_string = MFC.get_MFC_data(mfcID, mfc_params)
-                MFC_aux_string = MFC.makeAuxFileString(MFC_string, mfc_params["model"])
-                aux_string.extend(MFC_aux_string)
-                status += ";MFC:" + mfc_params["model"] + ":" + json.dumps(MFC_string)
+                if MFC_string.get('cavityFlow') and MFC_string.get('overflow'):
+                    MFC_aux_string = MFC.makeAuxFileString(MFC_string, mfc_params["model"])
+                    aux_string.extend(MFC_aux_string)
+                    status += ";MFC:" + mfc_params["model"] + ":" + json.dumps(MFC_string)
+                else:
+                    status += ";MFC:" + mfc_params["model"] + ":"
             else:
                 status += ";MFC:"
             
@@ -176,7 +179,11 @@ def main():
                 
                 
                 specfile = open(Path(spec_file_name), "a")
-                spectra_string = '\t'.join(intensities.astype(str))
+                if enable_spec:
+                    spectra_string = '\t'.join(intensities.astype(str))
+                else:
+                    spectra_string = ""
+
                 specfile.write(f"{current_time}\t{spectra_string}\n")
                 specfile.close()             
             
