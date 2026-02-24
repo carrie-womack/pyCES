@@ -40,15 +40,17 @@ def makeAuxFileString(mfc_string, model):
             # aux_string.append(mfc_string["overflow"]["pressure"])
             aux_string.append(mfc_string["overflow"]["temperature"])
     if model == "BASIS":
-        aux_string.append(mfc_string["cavityFlow"]["flow"])
-        aux_string.append(mfc_string["cavityFlow"]["setpoint"])
-        # aux_string.append(mfc_string["cavityFlow"]["pressure"])
-        aux_string.append(mfc_string["cavityFlow"]["temperature"])
-
-        aux_string.append(mfc_string["overflow"]["flow"])
-        aux_string.append(mfc_string["overflow"]["setpoint"])
-        # aux_string.append(mfc_string["overflow"]["pressure"])
-        aux_string.append(mfc_string["overflow"]["temperature"])
+        if mfc_string.get('cavityFlow'):
+            aux_string.append(mfc_string["cavityFlow"]["flow"])
+            aux_string.append(mfc_string["cavityFlow"]["setpoint"])
+            # aux_string.append(mfc_string["cavityFlow"]["pressure"])
+            aux_string.append(mfc_string["cavityFlow"]["temperature"])
+        if mfc_string.get('overflow'):
+            aux_string.append(mfc_string["overflow"]["flow"])
+            aux_string.append(mfc_string["overflow"]["setpoint"])
+            # aux_string.append(mfc_string["overflow"]["pressure"])
+            aux_string.append(mfc_string["overflow"]["temperature"])
+    
     return aux_string
 
 def get_MFC_data(ser, config_data):
